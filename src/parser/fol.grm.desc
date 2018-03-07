@@ -1,0 +1,1741 @@
+13 shift/reduce conflicts
+
+error:  state 79: shift/reduce conflict (shift RIGHTINFIXOP, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift LEFTINFIXOP, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift INFIXOP, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift LOADLOLLI, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift LOLLIPOP, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift ARROW, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift DCGARROW, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift DOUBLEARROW, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift BACKLOLLI, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift BACKDOUBLE, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift AMPERSAND, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift SEMICOLON, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift COMMA, reduce by rule 46)
+
+state 0:
+
+	start : . PARSEMODULE module 
+	start : . PARSEQUERY query 
+	start : . PARSETERM readterm 
+
+	PARSEMODULE	shift 3
+	PARSEQUERY	shift 2
+	PARSETERM	shift 1
+
+	start	goto 87
+
+	.	error
+
+
+state 1:
+
+	start : PARSETERM . readterm 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	readterm	goto 8
+	atom	goto 7
+	appl	goto 6
+	term	goto 5
+	id	goto 4
+
+	.	error
+
+
+state 2:
+
+	start : PARSEQUERY . query 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	query	goto 22
+	atom	goto 7
+	appl	goto 6
+	term	goto 21
+	id	goto 4
+
+	.	error
+
+
+state 3:
+
+	start : PARSEMODULE . module 
+
+	MODULE	shift 25
+
+	module	goto 24
+	moddecl	goto 23
+
+	.	error
+
+
+state 4:
+
+	atom : id .  (reduce by rule 40)
+
+
+
+	.	reduce by rule 40
+
+
+state 5:
+
+	readterm : term .  (reduce by rule 16)
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	BACKDOUBLE	shift 35
+	BACKLOLLI	shift 34
+	DOUBLEARROW	shift 33
+	DCGARROW	shift 32
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 16
+
+
+state 6:
+
+	appl : appl . atom 
+	term : appl .  (reduce by rule 34)
+
+	LPAREN	shift 20
+	TRUE	shift 17
+	ONE	shift 16
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 39
+	id	goto 4
+
+	.	reduce by rule 34
+
+
+state 7:
+
+	appl : atom .  (reduce by rule 35)
+
+
+
+	.	reduce by rule 35
+
+
+state 8:
+
+	start : PARSETERM readterm .  (reduce by rule 2)
+
+
+
+	.	reduce by rule 2
+
+
+state 9:
+
+	atom : STRING .  (reduce by rule 42)
+
+
+
+	.	reduce by rule 42
+
+
+state 10:
+
+	atom : INT .  (reduce by rule 41)
+
+
+
+	.	reduce by rule 41
+
+
+state 11:
+
+	id : UCID .  (reduce by rule 45)
+
+
+
+	.	reduce by rule 45
+
+
+state 12:
+
+	id : LCID .  (reduce by rule 44)
+
+
+
+	.	reduce by rule 44
+
+
+state 13:
+
+	atom : EXCL .  (reduce by rule 39)
+
+
+
+	.	reduce by rule 39
+
+
+state 14:
+
+	term : EXISTS . lamterm 
+
+	LCID	shift 43
+	UCID	shift 42
+
+	lamterm	goto 41
+	bdvar	goto 40
+
+	.	error
+
+
+state 15:
+
+	term : FORALL . lamterm 
+
+	LCID	shift 43
+	UCID	shift 42
+
+	lamterm	goto 44
+	bdvar	goto 40
+
+	.	error
+
+
+state 16:
+
+	atom : ONE .  (reduce by rule 38)
+
+
+
+	.	reduce by rule 38
+
+
+state 17:
+
+	atom : TRUE .  (reduce by rule 37)
+
+
+
+	.	reduce by rule 37
+
+
+state 18:
+
+	term : LBRACKET . term RBRACKET 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 45
+	id	goto 4
+
+	.	error
+
+
+state 19:
+
+	term : LCURLY . term RCURLY 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 46
+	id	goto 4
+
+	.	error
+
+
+state 20:
+
+	atom : LPAREN . term RPAREN 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 47
+	id	goto 4
+
+	.	error
+
+
+state 21:
+
+	query : term .  (reduce by rule 15)
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	BACKDOUBLE	shift 35
+	BACKLOLLI	shift 34
+	DOUBLEARROW	shift 33
+	DCGARROW	shift 32
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 15
+
+
+state 22:
+
+	start : PARSEQUERY query .  (reduce by rule 1)
+
+
+
+	.	reduce by rule 1
+
+
+state 23:
+
+	module : moddecl . locallist clauselist 
+
+	LOCAL	shift 49
+
+	locallist	goto 48
+
+	.	reduce by rule 5
+
+
+state 24:
+
+	start : PARSEMODULE module .  (reduce by rule 0)
+
+
+
+	.	reduce by rule 0
+
+
+state 25:
+
+	moddecl : MODULE . idlist DOT 
+
+	LCID	shift 52
+	UCID	shift 51
+
+	idlist	goto 50
+
+	.	error
+
+
+state 26:
+
+	term : term RIGHTINFIXOP . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 53
+	id	goto 4
+
+	.	error
+
+
+state 27:
+
+	term : term LEFTINFIXOP . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 54
+	id	goto 4
+
+	.	error
+
+
+state 28:
+
+	term : term INFIXOP . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 55
+	id	goto 4
+
+	.	error
+
+
+state 29:
+
+	term : term LOADLOLLI . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 56
+	id	goto 4
+
+	.	error
+
+
+state 30:
+
+	term : term LOLLIPOP . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 57
+	id	goto 4
+
+	.	error
+
+
+state 31:
+
+	term : term ARROW . term BAR term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 58
+	id	goto 4
+
+	.	error
+
+
+state 32:
+
+	term : term DCGARROW . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 59
+	id	goto 4
+
+	.	error
+
+
+state 33:
+
+	term : term DOUBLEARROW . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 60
+	id	goto 4
+
+	.	error
+
+
+state 34:
+
+	term : term BACKLOLLI . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 61
+	id	goto 4
+
+	.	error
+
+
+state 35:
+
+	term : term BACKDOUBLE . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 62
+	id	goto 4
+
+	.	error
+
+
+state 36:
+
+	term : term AMPERSAND . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 63
+	id	goto 4
+
+	.	error
+
+
+state 37:
+
+	term : term SEMICOLON . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 64
+	id	goto 4
+
+	.	error
+
+
+state 38:
+
+	term : term COMMA . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 65
+	id	goto 4
+
+	.	error
+
+
+state 39:
+
+	appl : appl atom .  (reduce by rule 36)
+
+
+
+	.	reduce by rule 36
+
+
+state 40:
+
+	lamterm : bdvar . BACKSLASH term 
+
+	BACKSLASH	shift 66
+
+
+	.	error
+
+
+state 41:
+
+	term : EXISTS lamterm .  (reduce by rule 30)
+
+
+
+	.	reduce by rule 30
+
+
+state 42:
+
+	bdvar : UCID .  (reduce by rule 48)
+
+
+
+	.	reduce by rule 48
+
+
+state 43:
+
+	bdvar : LCID .  (reduce by rule 47)
+
+
+
+	.	reduce by rule 47
+
+
+state 44:
+
+	term : FORALL lamterm .  (reduce by rule 29)
+
+
+
+	.	reduce by rule 29
+
+
+state 45:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : LBRACKET term . RBRACKET 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	RBRACKET	shift 67
+	BACKDOUBLE	shift 35
+	BACKLOLLI	shift 34
+	DOUBLEARROW	shift 33
+	DCGARROW	shift 32
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	error
+
+
+state 46:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : LCURLY term . RCURLY 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	RCURLY	shift 68
+	BACKDOUBLE	shift 35
+	BACKLOLLI	shift 34
+	DOUBLEARROW	shift 33
+	DCGARROW	shift 32
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	error
+
+
+state 47:
+
+	atom : LPAREN term . RPAREN 
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	RPAREN	shift 69
+	BACKDOUBLE	shift 35
+	BACKLOLLI	shift 34
+	DOUBLEARROW	shift 33
+	DCGARROW	shift 32
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	error
+
+
+state 48:
+
+	module : moddecl locallist . clauselist 
+
+	LINEAR	shift 73
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	clauselist	goto 72
+	clause	goto 71
+	atom	goto 7
+	appl	goto 6
+	term	goto 70
+	id	goto 4
+
+	.	error
+
+
+state 49:
+
+	locallist : LOCAL . idlist DOT locallist 
+
+	LCID	shift 52
+	UCID	shift 51
+
+	idlist	goto 74
+
+	.	error
+
+
+state 50:
+
+	moddecl : MODULE idlist . DOT 
+
+	DOT	shift 75
+
+
+	.	error
+
+
+state 51:
+
+	idlist : UCID .  (reduce by rule 8)
+	idlist : UCID . idlist 
+
+	LCID	shift 52
+	UCID	shift 51
+
+	idlist	goto 76
+
+	.	reduce by rule 8
+
+
+state 52:
+
+	idlist : LCID .  (reduce by rule 7)
+	idlist : LCID . idlist 
+
+	LCID	shift 52
+	UCID	shift 51
+
+	idlist	goto 77
+
+	.	reduce by rule 7
+
+
+state 53:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+	term : term RIGHTINFIXOP term .  (reduce by rule 33)
+
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 33
+
+
+state 54:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term LEFTINFIXOP term .  (reduce by rule 32)
+	term : term . RIGHTINFIXOP term 
+
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 32
+
+
+state 55:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term INFIXOP term .  (reduce by rule 31)
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 31
+
+
+state 56:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term LOADLOLLI term .  (reduce by rule 24)
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	ARROW	shift 31
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 24
+
+
+state 57:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term LOLLIPOP term .  (reduce by rule 22)
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	DOUBLEARROW	shift 33
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 22
+
+
+state 58:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term ARROW term . BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	BACKDOUBLE	shift 35
+	BACKLOLLI	shift 34
+	DOUBLEARROW	shift 33
+	DCGARROW	shift 32
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	BAR	shift 78
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	error
+
+
+state 59:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term DCGARROW term .  (reduce by rule 25)
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	DOUBLEARROW	shift 33
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 25
+
+
+state 60:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term DOUBLEARROW term .  (reduce by rule 20)
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	DOUBLEARROW	shift 33
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 20
+
+
+state 61:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term BACKLOLLI term .  (reduce by rule 23)
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	DOUBLEARROW	shift 33
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 23
+
+
+state 62:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term BACKDOUBLE term .  (reduce by rule 21)
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	DOUBLEARROW	shift 33
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 21
+
+
+state 63:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term AMPERSAND term .  (reduce by rule 18)
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	AMPERSAND	shift 36
+	DOUBLEARROW	shift 33
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 18
+
+
+state 64:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term SEMICOLON term .  (reduce by rule 19)
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	DOUBLEARROW	shift 33
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 19
+
+
+state 65:
+
+	term : term . COMMA term 
+	term : term COMMA term .  (reduce by rule 17)
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	COMMA	shift 38
+	DOUBLEARROW	shift 33
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 17
+
+
+state 66:
+
+	lamterm : bdvar BACKSLASH . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 79
+	id	goto 4
+
+	.	error
+
+
+state 67:
+
+	term : LBRACKET term RBRACKET .  (reduce by rule 28)
+
+
+
+	.	reduce by rule 28
+
+
+state 68:
+
+	term : LCURLY term RCURLY .  (reduce by rule 27)
+
+
+
+	.	reduce by rule 27
+
+
+state 69:
+
+	atom : LPAREN term RPAREN .  (reduce by rule 43)
+
+
+
+	.	reduce by rule 43
+
+
+state 70:
+
+	clause : term . DOT 
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	DOT	shift 80
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	BACKDOUBLE	shift 35
+	BACKLOLLI	shift 34
+	DOUBLEARROW	shift 33
+	DCGARROW	shift 32
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	error
+
+
+state 71:
+
+	clauselist : clause .  (reduce by rule 11)
+	clauselist : clause . clauselist 
+
+	LINEAR	shift 73
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	clauselist	goto 81
+	clause	goto 71
+	atom	goto 7
+	appl	goto 6
+	term	goto 70
+	id	goto 4
+
+	.	reduce by rule 11
+
+
+state 72:
+
+	module : moddecl locallist clauselist .  (reduce by rule 3)
+
+
+
+	.	reduce by rule 3
+
+
+state 73:
+
+	clause : LINEAR . term DOT 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 82
+	id	goto 4
+
+	.	error
+
+
+state 74:
+
+	locallist : LOCAL idlist . DOT locallist 
+
+	DOT	shift 83
+
+
+	.	error
+
+
+state 75:
+
+	moddecl : MODULE idlist DOT .  (reduce by rule 4)
+
+
+
+	.	reduce by rule 4
+
+
+state 76:
+
+	idlist : UCID idlist .  (reduce by rule 10)
+
+
+
+	.	reduce by rule 10
+
+
+state 77:
+
+	idlist : LCID idlist .  (reduce by rule 9)
+
+
+
+	.	reduce by rule 9
+
+
+state 78:
+
+	term : term ARROW term BAR . term 
+
+	LPAREN	shift 20
+	LCURLY	shift 19
+	LBRACKET	shift 18
+	TRUE	shift 17
+	ONE	shift 16
+	FORALL	shift 15
+	EXISTS	shift 14
+	EXCL	shift 13
+	LCID	shift 12
+	UCID	shift 11
+	INT	shift 10
+	STRING	shift 9
+
+	atom	goto 7
+	appl	goto 6
+	term	goto 84
+	id	goto 4
+
+	.	error
+
+error:  state 79: shift/reduce conflict (shift RIGHTINFIXOP, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift LEFTINFIXOP, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift INFIXOP, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift LOADLOLLI, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift LOLLIPOP, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift ARROW, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift DCGARROW, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift DOUBLEARROW, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift BACKLOLLI, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift BACKDOUBLE, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift AMPERSAND, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift SEMICOLON, reduce by rule 46)
+error:  state 79: shift/reduce conflict (shift COMMA, reduce by rule 46)
+
+state 79:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+	lamterm : bdvar BACKSLASH term .  (reduce by rule 46)
+
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	BACKDOUBLE	shift 35
+	BACKLOLLI	shift 34
+	DOUBLEARROW	shift 33
+	DCGARROW	shift 32
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 46
+
+
+state 80:
+
+	clause : term DOT .  (reduce by rule 13)
+
+
+
+	.	reduce by rule 13
+
+
+state 81:
+
+	clauselist : clause clauselist .  (reduce by rule 12)
+
+
+
+	.	reduce by rule 12
+
+
+state 82:
+
+	clause : LINEAR term . DOT 
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	DOT	shift 85
+	COMMA	shift 38
+	SEMICOLON	shift 37
+	AMPERSAND	shift 36
+	BACKDOUBLE	shift 35
+	BACKLOLLI	shift 34
+	DOUBLEARROW	shift 33
+	DCGARROW	shift 32
+	ARROW	shift 31
+	LOLLIPOP	shift 30
+	LOADLOLLI	shift 29
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	error
+
+
+state 83:
+
+	locallist : LOCAL idlist DOT . locallist 
+
+	LOCAL	shift 49
+
+	locallist	goto 86
+
+	.	reduce by rule 5
+
+
+state 84:
+
+	term : term . COMMA term 
+	term : term . AMPERSAND term 
+	term : term . SEMICOLON term 
+	term : term . DOUBLEARROW term 
+	term : term . BACKDOUBLE term 
+	term : term . LOLLIPOP term 
+	term : term . BACKLOLLI term 
+	term : term . LOADLOLLI term 
+	term : term . DCGARROW term 
+	term : term . ARROW term BAR term 
+	term : term ARROW term BAR term .  (reduce by rule 26)
+	term : term . INFIXOP term 
+	term : term . LEFTINFIXOP term 
+	term : term . RIGHTINFIXOP term 
+
+	INFIXOP	shift 28
+	LEFTINFIXOP	shift 27
+	RIGHTINFIXOP	shift 26
+
+
+	.	reduce by rule 26
+
+
+state 85:
+
+	clause : LINEAR term DOT .  (reduce by rule 14)
+
+
+
+	.	reduce by rule 14
+
+
+state 86:
+
+	locallist : LOCAL idlist DOT locallist .  (reduce by rule 6)
+
+
+
+	.	reduce by rule 6
+
+
+state 87:
+
+
+	EOF	accept
+	DOT	accept
+
+
+	.	error
+
+270 of 603 action table entries left after compaction
+113 goto table entries

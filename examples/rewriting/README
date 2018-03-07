@@ -1,0 +1,9 @@
+This directory contains a variation of the list rewriting example from
+the LICS-91/IC-92 papers. Here the program has been separated into
+two modules, one of which implements the core of the rewriter, and the
+other of which gives the actual rewrite rules.
+
+The third file, sort.ll uses the basic rewriting idea to implement a 
+simple (highly inefficient) sorting routine. It is a good demonstration
+of using the module system to provide a level of abstraction and information
+hiding.

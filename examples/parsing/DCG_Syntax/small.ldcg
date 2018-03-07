@@ -1,0 +1,43 @@
+%Sample Natural Language Parser
+%Based on the example in the  LICS/I&C paper, this one uses some
+%built-ins to make it pretty, and also returns the parse tree.
+
+parse Str Tree     :- explode_words Str Lst, sent Tree Lst nil.
+
+% grammar rules
+
+sent (sent N V)  --> {np N}, vp V.
+
+vp (vp T N)      --> tv T, np N.
+vp (vp Stv Sbar) --> stv Stv, sbar Sbar.
+
+sbar (sbar that S) --> (that::nil), sent S.
+
+np (np D N)   --> det D, n N.
+np (np D N R) --> det D, n N, rel R.
+np (np P)     --> pn P.
+
+rel (rel whom S) -->  (whom::nil), (np (np gap) --> nil) -o sent S.
+
+
+
+% lexical items
+
+det (det the) --> (the::nil).
+
+n (n N) --> (N::nil), [n N].
+n man.
+n woman.
+n girl.
+n boy.
+
+pn (pn PN) --> (PN::nil), [pn PN].
+pn mary.
+pn bob.
+pn jill.
+
+tv (tv TV) --> (TV::nil), [tv TV].
+tv loves.
+tv married.
+
+stv (stv believes) --> (believes::nil).

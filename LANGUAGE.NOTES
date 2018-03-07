@@ -1,0 +1,529 @@
+% LANGUAGE.NOTES for Lolli 0.7 -- Josh Hodas (hodas@saul.cis.upenn.edu) 
+
+
+This file attempts to cover, in one place, everything you need to know about
+writing Lolli programs, assuming that you have done some Prolog (or Lambda
+Prolog) programming, and understand the basic ideas underlying Lolli, (ie. as 
+described in the Information and Computation paper).
+
+
+Core Syntax
+===========
+
+Terms & Atoms
+-------------
+In its present form Lolli is a higher-order language with essentially first-
+order unification. That is, variables may stand in any position -- or more 
+precisely, quantifiers may range over all object classes -- but the unification
+algorithm is essentially that of Prolog, except that it includes the occurs 
+check.  Lambda terms (as in Lambda Prolog), and their unification, are not 
+supported. It is hoped that these will be added in a future version.
+
+As with Lambda Prolog, terms and atoms in the lanuguage are written in curried 
+form. So, for instance, the Prolog term "f(a,g(b,c,h(d)),e)" is written in 
+Lolli as "(f a (g b c (h d)) e)".
+
+Lists in Lolli are constructed as in ML and Lambda Prolog, with the 
+constructors "::" and "nil". Thus the Prolog list "[a,[b,c],d|E]" is the
+Lolli list "(a::(b::c::nil)::d::E)".
+
+
+Constants in the language are mostly untyped, but can be divided into three
+classes:
+
+	Atomic constants, and variable names, can consist of any combination 
+of characters, including spaces, new-lines, or other control codes.
+If they contain only alphanumeric characters (plus the character '_') then they
+may be written directly. If they contain other characters, they can be written
+either by enclosing the entire name in single quotes (''), or by preceeding 
+non-alpha-numeric characters with a caret (^).  Lolli will always use the 
+latter method when printing names. 
+
+Unless explicitly quantified, names beginning with an upper-case letter or an 
+underscore are assumed to be logic variables (that is, existentially quantified
+at the outermost level of the containing query, or universally quantified at 
+the outermost level of the containing clause). All other names are assumed to 
+be constants. It is important to note that while '_' is a valid variable name
+in Lolli, it is not anonymous. Lolli does not support anonymous variables. 
+Thus the unification "(f _ _) = (f b c)" fails in Lolli.
+
+Certain names (, ; & -o --o :- => <= --> = =:= =\= =< >= < > is + - * / ::) 
+are used for built-in predicates (and logical operators) and are expected by 
+the parser to occur in infix position. To use these names in other ways, just
+put single quotes around them, i.e. "(verb_aux 'is')".
+
+	Strings are any combination of characters surrounded by double quotes.
+Strings are expected by some of the built-in predicates (particularly when
+a file name is needed), and are also useful as prompts, since the write_sans
+built-in will print them without the quotes.
+
+	Integers are any combination of digits only. They are expected when
+arithmetic evaluation is done.
+
+
+Clauses & Goals
+---------------
+The formula language of Lolli is quite rich compared to that of Prolog,
+and is described in depth in the Information and Computation paper.
+The following is intended to summarize the concrete syntax used for the
+various logical operators:
+
+true	: This goal always succeeds, provided any resources in the bounded
+	  context will be used elsewhere in the goal surrounding this one.
+	  It corresponds to the the atomic formula 'one' in Girard's linear
+	  logic.
+
+erase	: This goal always suceeds, and in so doing consumes any resources
+	  in the bounded context that are not otherwise (thus far, or in the 
+    	  future) consumed by the surrounding compound goal. In effect it
+	  exempts the surrounding goal from the requirement that it use
+	  all of the resources in the bounded context. It corresponds to the
+	  formula 'top' in Girard's linear logic.
+
+Bang (Modal):
+{A}	: Used in goal position, this can succeed only if A can be proved
+	  without using any clauses from the current bounded (linear) context.
+
+	  In clause position, this indicates that the clause should be placed
+	  in the unbounded context. (This use is discouraged. Use the 
+	  intuitionistic implication operator instead.)
+
+Multiplicative Conjunction (tensor):
+A , B	: Used as a goal, this says to attempt a proof of A and, if it succeeds
+	  to attempt a proof of B using whatever elements of the bounded 
+	  context were not consumed during the proof of A. That is, it divides
+	  the bounded context between the two conjuncts.
+	  
+	  This operator can also be used on the left of a linear implication,
+	  (or as the outer connective in a clause marked LINEAR in a module),
+ 	  in which case it simply refers to the conjunction of the two clause.
+	  That is, "(a,b) -o c" is equivalent to "a -o (b -o c)". For proof
+	  theoretic reasons, it cannot occur on the left of an intuitionistic
+	  implication.
+
+Additive Conjunction (with):
+A & B	: As a goal this is similar to "A , B", but it succeeds only if B can
+	  be proved using exactly the same set of resources from the bounded 
+	  context as the proof of A. That is, it duplicates the bounded
+	  context for each conjunct.
+
+	  When this operator occurs as the outer level connective in a clause
+	  (or on the left of an implication goal) it acts in a somewhat 
+	  disjunctive manner, saying that one or the other of the clauses
+	  may be selected, but not both. (If the clause pair is in the 
+	  unbounded context this behavior is mitigated, since the overall
+	  pair may be used twice, and each subclause selected in turn).
+	  In the head of a clause it says that any of the conjuncts may
+	  match as the head.  These behaviors are demonstrated in the program
+	  in ./examples/simple/with_clause.ll.
+
+Multiplicative Disjunction (oplus):
+A ; B	: This goal attempts a proof of A, and if it succeeds the overall
+	  goal suceeds. If it fails then B is attempted.
+
+Linear Implication:
+A -o B  : In goal position this means add the clause A to the bounded context
+	  and attempt to prove the goal B. While clause ordering is not an 
+	  issue in the pure logic, search in Lolli occurs (as in Prolog) from
+	  the beginning of a program and continues downwards. Implications add
+	  their assumptions to the beginning of a program.
+
+A :- B	: Used in clause position, A is taken to be the head of the clause,
+          and the goal B is its body. Unlike Prolog, the head A need not 
+    	  be an atom, though it wil most often be. Rather, it can be any valid 
+	  clause. To understand this look at the definition of backchaining in 
+	  the simple Prolog implementation of the logic given in the 
+	  Information & Computation paper. 
+	  
+    In actuality, the operators ':-' and '-o' are fully interchangeable, with
+    'A -o B' equivalent to 'B :- A'.
+
+Intuitionistic Implication:
+A => B	: The same as "A -o B", but adds the clause A to the unbounded context.
+	  The same effect can be achieved by "{A} -o B", though that style
+	  is discouraged.
+
+A <= B	: As a clause (with head A) the body goal B must be provable without 
+	  using any resources in the current bounded context. The same effect 
+	  can be achieved by "A :- {B}", though that style is discouraged.
+
+    As above, the operators '<=' and '=>' are fully interchangeable, with
+    'A => B' equivalent to 'B <= A'.
+	   
+Universal Quantification:
+forall x \ A : As a goal this directs the system to substitute a new constant
+	  for x in A and then attempt the goal A.  The system must also, during
+	  the proof of A, insure that any logic variables that are currently 
+ 	  free the A or the current program are not bound to terms containing 
+	  this new constant.  This check insures that the new constant cannot 
+	  be drawn outside of the context in which it is created. Bound names 
+	  may begin with either upper or lower case, it makes no difference.
+
+Existential Quantification:
+exists x \ A : This can be thought of as turning a goal into a yes-no question.
+	  That is the goal will succeed if there is a substitution for the 
+	  variable x, but it won't return the substitution. If this is a part 
+	  of a compound goal, the effect is to bind 'x' loacally, 
+	  distinguishing it from other 'x's which may occur in the overall
+	  goal. As with "forall", bound names may begin with upper or lower
+	  case.
+
+Guard Expressions:
+Test -> Succeeds | Fails: This is the one extra-logical operator included in
+	  the current release of Lolli. It first attempts a proof of Test. If
+	  that succeeds, it then attempts to prove Succeeds, and the overall
+	  goal succeeds only if Succeeds does. If Test fails, then Fails is
+	  attempted, and the overall goal succeeds only if Fails does. In no
+	  case is the Test reattempted.
+
+	  This extra-logical can be used to implement many of the other
+	  such operators common to logic programming. For instance, negation-
+	  as-failure can be implemented with the clause:
+
+		not G :-  G -> fail | true.
+
+	  While the operator "once" which succeeds if its operand does,
+	  but can succeed at most once, is defined as:
+
+		once G :-  G -> true | fail.
+
+	  Note that the resource consumption of a guard expression (if the
+	  overall goal succeeds) is equivalent to either "Test , Succeeds",
+	  or to just "Fails", depending on which case holds. This seems the 
+	  most sensible choice, since "Test" will most often be some simple
+	  predicate which consumes no resources.
+
+
+The material above does not fully explain all of the ways in which the logical
+operators may be combined. The possible formulas of Lolli can be summarized 
+by the formulation of three classes of formulas, R, D, and G, (where G
+comprises the class of all valid goal formulas) as follows:
+
+R := true | Atom  | R1 & R2 | R :- G | R <= G  | forall x\ R
+
+D :=  R   |  {R}  | D1 , D2
+
+G := true | erase |    A    |  {G}   | G1 & G2 | G1 , G2 | D -o G | R => G 
+	  |   forall x\ G   |    exists x\ G   | G1 ; G2 | (G1 -> G2 | G3)
+
+
+The associativity and precedence of the various operators, in ascending 
+order of precedence is:
+
+	right 	forall 	exists
+	left 	<= 	o- 	-->	(The last is for eventual DCG use.)
+	right 	;
+	right	&
+	right 	,
+	right 	=>	-o
+	right	--o
+	right 	->
+	left 	|
+	left 	= 	=:= 	=\= 	=< 	>= 	< 	> 	is
+	left 	+	-	*	/
+	right 	::
+
+
+
+Modules
+=======
+While it is possible to use Lolli exclusively interactively, using implications
+to load clauses into the program contexts, this quickly grows tedious. 
+Some way of reading programs from text files is desired. To this end, Lolli
+has adopted an extended (and modified) variant of Lambda Prolog's module 
+system.
+
+The basic form of a module is a name declaration followed by an arbitrary 
+number of clauses, with "." used to mark the end of a clause.  Ie:
+
+	MODULE modulename.
+
+	clause 1.
+	clause 2.
+	...
+
+This module must be stored in a file named "modulename.ll".
+
+As with Prolog, and Lambda Prolog, variables (names beginning with an
+uppercase character or underscore) are assumed to be universally quantified
+at the boundary of the clause.
+
+Because it is assumed that most of the clauses in a program are intended
+to be useable as many or as few times as needed, clauses not otherwise marked
+are loaded into the unbounded context (as though they had been asserted with
+the "=>" operator). If a clause is intended to be put in the bounded context 
+it is marked with the keyword LINEAR. Ie:
+
+	MODULE modulename.
+
+	clause 1.
+	LINEAR clause 2.
+	...
+
+Two mechanisms are provided for controling the binding (and availability) of
+names that occur in a module. First, in order to suport notions of abstraction 
+and hiding, the LOCAL declaration, which takes a space delimited list of names 
+(which can be constant, function, or predicate names), declares that those 
+names are local to the module, and cannot be seen outside. Thus in the 
+following module, the predicate "pr1" cannot be called from outside this
+module:
+
+	MODULE modulename.
+
+	LOCAL pr1.
+
+	clause 1.
+	...
+	pr1 :- body1.
+	pr1 :- body2.
+	...
+
+A module may also be parameterized by a series of names, which are placed
+after the modulename in the module declaration. This provides a way of
+speciying behavior of clauses in the module without adding extra parameters to
+the individual predicates. Thus a module defining a sorting predicate could
+be given by:
+
+	MODULE sort ordering.
+
+	LOCAL collect unpack hyp.
+
+	collect nil.
+	collect (X::nil) :- hyp X.
+	collect (X::Y::L) :- collect (Y::L), hyp X, ordering X Y.
+
+	unpack nil G :- G.
+	unpack (X::L) G :- hyp X -o unpack L G.
+
+	sort L K :- unpack L (collect K).
+
+Modules are loaded using the "--o" operator, as described below. So, if
+we wished to use this predicate to sort some list in decending order, the query
+would be:
+
+	?- (sort '>=') --o (sort (1::3::5::2::4::6::0::nil) A).
+	A_1 <- 6 :: 5 :: 4 :: 3 :: 2 :: 1 :: 0 :: nil
+	yes
+
+Note that the overloading of the "sort" identifier is not a problem here.
+
+The entire module syntax is simply syntactic sugar for a combination of 
+quantifiers and implications. The translation is given on page 6 of the short
+paper in ./papers/lppl.dvi.
+
+
+Built-in (Evaluable) Predicates
+===============================
+
+An important goal of this implementation was to provide enough
+built-in predicates to make it possible to write interesting
+Lolli programs. The built-in predicates can be classified in
+four groups: input-output, arithmetic, control, and miscellaneous.
+
+Note that, do to the nature of the implementation, it is illegal to
+specify clauses for predicates with the same name as a built-in predicate,
+even if the predicate you are attempting to define is of a different arity.
+
+
+Input-Output
+------------
+write Term	      - Writes the current instantiation of Term to current
+			output. Strings are written with surrounding double
+			quotes, atomic constants are written directly, with
+			non-alphanumeric characters preceeded by a caret.
+			Complex terms are written with as few parentheses
+			as possible, using the same associativity and 
+			precedence as the input parser.
+
+write_sans Term	      - If Term is instantiated to a string, the text of the
+			the string is written to the current output, without
+			surrounding quotes. If Term is any other structure,
+			(including a complex term with string sub-terms) this
+			predicate behaves the same as write/1.
+
+write_clause Term     - This predicate behaves the same as write/1 except that
+			the term is treated as though it occurs as a program
+			clause, ie. it has parity -1. So, for instance, 
+
+				?- write ((a -o b) -o c), nl.
+				(b :- a) -o c
+				solved.
+
+				?-  write_clause ((a -o b) -o c), nl.
+				c :- (a -o b)
+				solved
+
+write_raw Term	      - This predicate is intended mostly for debugging
+			Lolli's parser. It prints out the given term in
+			prefix form with all its parentheses. This enables
+			you to check that a term is parsing the way you
+			think it should. 
+
+nl		      - Writes a newline character to the current output.
+
+read Term	      - Reads a term from the current input and unifies 
+			that term with Term. The input is terminated either
+			by a period or end-of-file. If end-of-file is (or
+			has been) reached before any input is read, then 
+			the atomic constant end_of_file is returned by 
+			the input parser.
+
+telling Filename Goal - Sets the current output to the named file for the
+			duration of the proof of the goal given by Goal.
+			Filename must be instantiated to a string constant. 
+			Success or failure of the sub-goal will cause the
+			output to be reset to standard input. Failing back 
+			into the goal will not cause the output to be re-
+			opened. Further, the system only tracks one output
+			stream. If a nested sub-goal causes output to redirect
+			to a second file, its completion will cause ouput
+			to return to standard input, not to the first file.
+			This behavior may change in the future to allow a stack
+			of output streams, if there is enough demand.
+
+seeing Filename Goal  - This predicate behaves the same as telling/2 but 
+			controls the input stream.
+
+
+Arithmetic
+----------
+The arithmetic predicates are essentially the same as for Prolog.
+
+Term1 is Term2	      - Term2 -- which must be instantiated to an arithmetic 
+			expression built of integers and the operators +,-,
+			*, and / (integer division) -- is evaluated and the
+			result is unified with Term1. Note that no operator
+			precedence is assumed for +,-,*,/.  Use parentheses
+			as necessary.
+
+Term1 =:= Term2	      - Term1 and Term2 are evaluated, and checked for equality
+Term1 =\= Term2		... inequality,
+Term1 >=  Term2		... greater-than-or-equals,
+Term1 =<  Term2		... less-than-or-equals,
+Term1 >   Term2		... greater-than, or
+Term1 <   Term2		... less-than, respectively.
+
+Note: Be careful when entering '>=' and '=<', since '=>' and '<=' are defined
+      as intuitionistic implication.
+
+
+Control
+-------
+
+fail		      - This goal always fails.
+
+top		      - Start a new read-prove-print loop, with the current
+			proof context as a base. Bounded formulas in the new
+			base context must be used in any query that is to 
+			succeed. However, each sucsessive query will be started
+			with those formulas restored to the context. I.e.,
+
+				?- a -o top.
+
+				?- true.
+				no
+
+				?- a.
+				solved.
+
+				?- a -o (a, a).
+				solved.
+
+pop		      - This causes the current goal and the current read-
+			prove-print loop to be exited, and control returned 
+			to the loop that was executing at the time of the 
+			most recent call to top/1. Any goals that are pending 
+			in that loop are also aborted.  For instance, if we 
+			continue the session in	the last example,
+
+				?- a -o top, a.
+
+				?- a.
+				no
+
+				?- a, a.
+				solved.
+	
+				?- pop, a.
+				Returning to previous top level...
+
+				?- a.
+				solved.
+
+			If end-of-file (^D on most systems) is issued at the
+			Lolli prompt, this is taken as a short-cut for pop/1.
+			Attempts to pop/1 out of the outermost (top level) 
+			read-prove-print loop will cause the following message
+			to be printed:
+
+				?- pop.
+				You are now at the top level. Use 'bye' to 
+				leave Lolli.
+
+popall		      - Similar to pop/1, but returns to the outermost 
+			read-prove-print loop.
+
+abort		      - Immediately abort the current goal and return to the
+			current read-prove-print loop.
+
+				?- abort, a.
+				aborted...
+
+bye (or exit)	      - Immediately abort the current goal and exit Lolli.
+
+Term --o Goal	      - Take the head of Term to be a module name, and its
+			arguments to be actual parameters. Load the named 
+			module, appropriately parameterized, into the current 
+			context, and attempt to prove Goal.
+
+load Term	      - This is just syntactic sugar for 'Term --o top'.
+
+
+Miscellaneous
+-------------
+
+Term1 = Term2	      - Attempts to unify Term1 with Term2.
+
+timing Goal Term      - Attempts to prove the goal Goal. If this succeeds, 
+			unify Term with the number of microseconds used in
+			the proof. This time includes time spent garbage
+			collecting by the underlying ML system. If subsequent 
+			failure causes Goal to be reattempted and resucceed,
+			then the timer will also include all time spent on 
+			all of the intervening computations.
+
+cd Dirname	      - Causes the current directory to be changed to Dirname,
+			which must be instantiated to a string constant.
+
+system Command Result - Passes the string Command to the operating system as
+			a command. The result code returned by the operating
+			system is then unified with Result.
+
+explode String Term   - Unifies Term with a list built by turning each
+			character of String into an atomic constant.
+
+explode_words String Term - Unifies Term with a list built by turning each
+			word (ie, white-space delimited chunk of characters)
+			in String into an atomic constant.
+
+var Term	      - This goal succeeds if and only if Term is an 
+			uninstantiated logic variable.
+
+nonvar Term	      - This goal succeeds if and only if Term is anything
+			but an uninstantiated logic variable.
+
+generalize Term1 Term2 - This predicate scans Term1 to find any unbound logic
+			variables, and then unifies Term2 with a term built 
+			from Term1, but with all those unbound variables 
+			explicitly universally quantified. For example,
+
+			    ?- generalize (f A b (c D)) E.
+			    E_1 <- forall A_3 \ (forall D_2 \ f A_3 b (c D_2)).
+
+			Note that the implementation of generalize is 
+			potentially unsound, as it does not check for variable
+			capture. The circumstances that would force such a
+			capture are, however, unlikely to occur in practice
+			(in fact I'm not 100% sure it can happen at all).
+
+

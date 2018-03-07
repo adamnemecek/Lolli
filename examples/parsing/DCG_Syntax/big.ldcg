@@ -1,0 +1,260 @@
+%Sample Natural Language Parser
+%This is a somewhat larger example of a gap-filler dependency parser.
+%It is based on the example given at the end of the JICSLP '92 paper.
+
+%Sample Use:
+%  ?- big --o top.
+%  ?- parse "the program that john wrote halted" T.
+%
+%  T2727 <- sent (np (det the) (nposs (optap epsilon) (n program)) 
+%           (optpp epsilon) (optrel (rel that (sent (np (pnposs (pn john))) 
+%           (vp (tv wrote) (np gap)))))) (vp (iv halted) (optpp epsilon)).
+%  yes
+%
+%  ?- parse "i told mary that john wondered who jane saw" T.
+%
+%  T21404 <- sent (np (pnposs (pn i))) (vp (tv told) (np (pnposs (pn mary)))
+%            (sbar that (sent (np (pnposs (pn john))) (vp (qv wondered) 
+%            (qbar (npwh (nwh who)) (sent (np (pnposs (pn jane))) 
+%            (vp (tv saw) (np gap)))))))).
+%  yes
+
+
+parse Str Tree     :- explode_words Str Lst, 
+		      (sent Tree Lst nil ; quest Tree Lst nil).
+
+% grammar rules
+
+sent (sent NP VP)  --> {np NP}, vp VP.
+
+%sent (and (sent NP1 VP1) (sent NP2 VP2)) -->
+%        {np NP1}, vp VP1, (and::nil)   &   {np NP2}, vp VP2.
+%sent (and S1 S2)  --> sent S1, (and::nil) & sent S2.
+
+quest (quest VFA NP AP) --> vfa VFA, np NP, ap AP.
+quest (quest VFA NP VP) --> vfa VFA, np NP, vp VP.
+quest (quest NPWH Q) 	--> npwh NPWH, np (np gap) -o quest Q.
+quest (quest APW  Q)	--> apwh APW,  ap (ap gap) -o quest Q.
+quest (quest PPW  Q) 	--> ppwh PPW,  pp (pp gap) -o quest Q.
+quest (quest NPWH VP) 	--> npwh NPWH, vp VP.
+
+npwh (npwh NWH) --> nwh NWH.
+npwh (npwh which OptAP N) --> (which::nil), optap OptAP, n N.
+
+apwh (apwh AWH) --> awh AWH.
+
+ppwh (ppwh PWH) --> pwh PWH.
+
+sbar (sbar that S) --> (that::nil), sent S.
+
+qbar (qbar NPWH VP) --> npwh NPWH, vp VP.
+qbar (qbar NPWH S)  --> npwh NPWH, np (np gap) -o sent S.
+
+np (np PNposs) --> pnposs PNposs.
+np (np Det Nposs OptPP OptRel) -->
+	 det Det, nposs Nposs, optpp OptPP, optrel OptRel.
+
+pnposs (pnposs PN) --> pn PN.
+pnposs (pnposs PN s Nposs) --> pn PN, (s::nil), nposs Nposs.
+
+nposs (nposs OptAP N) --> optap OptAP, n N.
+nposs (nposs OptAP N s Nposs) --> optap OptAP, n N, (s::nil), nposs Nposs.
+
+vp (vp DV NP PP)   --> dv DV,   np NP, pp PP.
+vp (vp TV NP)      --> tv TV,   np NP.
+vp (vp IV OptPP)   --> iv IV,   optpp OptPP.
+vp (vp Stv Sbar)   --> stv Stv, sbar Sbar.
+vp (vp TV NP Sbar) --> tv TV,   np NP, sbar Sbar.
+vp (vp Qv Qbar)    --> qv Qv,   qbar Qbar.
+vp (vp Vfa VP)     --> vfa Vfa, vp VP.
+vp (vp Vfa AP)     --> vfa Vfa, ap AP.
+
+optpp (optpp epsilon) --> nil.
+optpp (optpp PP)      --> pp PP.
+
+pp (pp P NP) --> p P, np NP.
+
+optap (optap epsilon) --> nil.
+optap (optap AP)      --> ap AP.
+ap (ap A) --> a A.
+
+optrel (optrel epsilon) --> nil.
+optrel (optrel Rel)     --> rel Rel.
+
+rel (rel that VP)   --> (that::nil), {vp VP}. 
+rel (rel who VP)    --> (who::nil),  {vp VP}. 
+rel (rel that S)    --> (that::nil), {np (np gap) -o sent S}.
+rel (rel whom S)    --> (whom::nil), {np (np gap) -o sent S}.
+rel (rel P whom S)  --> p P, (whom::nil), {pp (pp gap) -o sent S}.
+rel (rel P which S) --> p P, (which::nil), {pp (pp gap) -o sent S}.
+
+
+% pre-terminals and lexical items
+
+det (det Det) --> (Det::nil), [det Det Agree].
+det the   (pair third Num).
+det a     (pair third sing).
+det some  (pair third plur).
+det every (pair third sing).
+det all   (pair third plur).
+
+nwh (nwh NWH) --> (NWH::nil), [nwh NWH].
+nwh who.
+nwh what.
+nwh which.
+
+awh (awh AWH) --> (AWH::nil), [awh AWH].
+awh how.
+
+pwh (pwh PWH) --> (PWH::nil), [pwh PWH].
+pwh where.
+
+n (n N) --> (N::nil), [n N Agree].
+n man		(pair third sing).
+n woman 	(pair third sing).
+n girl 		(pair third sing).
+n boy  		(pair third sing).
+n author 	(pair third sing).
+n book		(pair third sing).
+n professor	(pair third sing).
+n program	(pair third sing).
+n programmer	(pair third sing).
+n student	(pair third sing).
+n computer	(pair third sing).
+
+n men		(pair third plur).
+n women 	(pair third plur).
+n girls		(pair third plur).
+n boys		(pair third plur).
+n authors	(pair third plur).
+n books		(pair third plur).
+n professors	(pair third plur).
+n programs	(pair third plur).
+n programmers	(pair third plur).
+n students	(pair third plur).
+n computers	(pair third plur).
+n fish		(pair third Num).
+
+pn (pn PN) --> (PN::nil), [pn PN Agree].
+pn rufus	(pair third sing).
+pn dale		(pair third sing).
+pn eva		(pair third sing).
+pn josh		(pair third sing).
+pn elizabeth	(pair third sing).
+pn steven	(pair third sing).
+pn catherine	(pair third sing).
+pn mary		(pair third sing).
+pn bob		(pair third sing).
+pn jill		(pair third sing).
+pn bill		(pair third sing).
+pn jane		(pair third sing).
+pn john		(pair third sing).
+pn sally	(pair third sing).
+
+pn i		(pair first sing).
+pn you		(pair second Num).
+pn he		(pair third sing).
+pn she		(pair third sing).
+pn it		(pair third sing).
+pn we		(pair first plur).
+pn they		(pair third plur).
+
+tv (tv TV) --> (TV::nil), [tv TV Agree].
+tv love		(pair first  sing).
+tv love		(pair second sing).
+tv love		(pair Person plur).
+tv loves	(pair third sing).
+tv loved	(pair Person Num).
+tv marry	(pair first  sing).
+tv marry	(pair second sing).
+tv marry	(pair Person plur).
+tv marries	(pair third sing).
+tv married	(pair Person Num).
+tv concern	(pair first  sing).
+tv concern	(pair second sing).
+tv concern	(pair Person plur).
+tv concerns	(pair third sing).
+tv concerned	(pair Person Num).
+tv meet		(pair first  sing).
+tv meet		(pair second sing).
+tv meet		(pair Person plur).
+tv meets	(pair third sing).
+tv met		(pair Person Num).
+tv write	(pair first  sing).
+tv write	(pair second sing).
+tv write	(pair Person plur).
+tv writes	(pair third sing).
+tv wrote	(pair Person Num).
+tv told		(pair P N).
+tv saw		(pair P N).
+tv sees		(pair P N).
+
+iv (iv IV) --> (IV::nil), [iv IV Agree].
+iv run		(pair first  sing).
+iv run		(pair second sing).
+iv run		(pair Person plur).
+iv runs		(pair third sing).
+iv ran		(pair Person Num).
+iv halt		(pair first  sing)
+iv halt		(pair second sing).
+iv halt		(pair Person plur).
+iv halts	(pair third sing).
+iv halted	(pair Person Num).
+
+dv (dv DV) --> (DV::nil), [dv DV Agree].
+dv meet		(pair first  sing).
+dv meet		(pair second sing).
+dv meet		(pair Person plur).
+dv meets	(pair third sing).
+dv met		(pair Person Num).
+dv write	(pair first  sing).
+dv write	(pair second sing).
+dv write	(pair Person plur).
+dv writes	(pair third sing).
+dv wrote	(pair Person Num).
+dv written	(pair P N).
+dv give		(pair first  sing).
+dv give		(pair second sing).
+dv give		(pair Person plur).
+dv gives	(pair third sing).
+dv gave		(pair Person Num).
+
+stv (stv STV) --> (STV::nil), [stv STV Agree].
+stv believe	(pair first  sing).
+stv believe	(pair second sing).
+stv believe	(pair Person plur).
+stv believes	(pair third sing).
+stv believed	(pair Person Num).
+stv think	(pair first  sing).
+stv think	(pair second sing).
+stv think	(pair Person plur).
+stv thinks	(pair third sing).
+stv thought	(pair Person Num).
+
+qv (qv QV) --> (QV::nil), [qv QV].
+qv wondered.
+qv wonders.
+qv asks.
+qv asked.
+
+
+vfa (vfa VFA) --> (VFA::nil), [vfa VFA].
+vfa 'is'.
+vfa did.
+vfa was.
+vfa would.
+
+a (a A) --> (A::nil), [a A].
+a	tall.
+a	stupid.
+a	short.
+a	smart.
+
+
+p (p P) --> (P::nil), [p P].
+p with.
+p about.
+p to.
+p under.
+p above.
+p on.

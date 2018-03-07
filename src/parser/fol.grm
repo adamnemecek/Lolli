@@ -1,0 +1,133 @@
+structure Absyn = Absyn
+open Absyn
+%%
+%header (functor FolLrValsFun (structure Token : TOKEN
+			       structure Absyn : ABSYN) : Fol_LRVALS)
+
+%term
+    EOF | DOT | LINEAR | LOCAL | MODULE | BACKSLASH 
+  | COMMA | SEMICOLON | AMPERSAND
+  | LPAREN | RPAREN | LCURLY | RCURLY | LBRACKET | RBRACKET
+  | BACKDOUBLE | BACKLOLLI | DOUBLEARROW | DCGARROW
+  | ARROW | LOLLIPOP | LOADLOLLI | BAR
+  | TRUE | ONE | FORALL | EXISTS | EXCL
+  | PARSEMODULE | PARSEQUERY | PARSETERM
+  | LCID of string | UCID of string | INT of int | STRING of string 
+  | INFIXOP of string | LEFTINFIXOP of string |RIGHTINFIXOP of string
+
+%nonterm 
+    start of Absyn.parse_result
+  | module of string * string list * string list 
+		     * (string list * Terms.term) list
+  | moddecl of string list
+  | locallist of string list
+  | idlist of string list
+  | clauselist of Absyn.aterm list
+  | clause of Absyn.aterm
+  | query of string list * Terms.term
+  | readterm of string list * Terms.term
+  | atom of Absyn.aterm
+  | appl of Absyn.aterm  
+  | term of Absyn.aterm
+  | lamterm of Absyn.aterm
+  | bdvar of Absyn.avarbind
+  | id of Absyn.aterm
+
+%start start
+%eop DOT EOF
+%noshift EOF
+%pos int
+%verbose
+%pure
+
+%right FORALL EXISTS
+%left BACKDOUBLE
+      BACKLOLLI
+      DCGARROW
+%right SEMICOLON
+%right AMPERSAND
+%right COMMA
+%right DOUBLEARROW
+       LOLLIPOP
+%right LOADLOLLI
+%right ARROW
+%left BAR
+%left INFIXOP
+%left LEFTINFIXOP
+%right RIGHTINFIXOP
+
+%name Fol
+
+%prefer DOT
+%%
+
+start : PARSEMODULE module	(Parsed_Module(module))
+      | PARSEQUERY query	(Parsed_Query(query))
+      | PARSETERM readterm      (Parsed_Term(readterm))
+
+module : moddecl 
+	  locallist clauselist 	(close_module(moddecl,locallist,clauselist))
+
+moddecl : MODULE idlist DOT	(idlist)
+
+locallist : 			(nil)
+	  | LOCAL idlist DOT 
+	    locallist 		(idlist @ locallist)
+
+idlist : LCID 			(LCID::nil)
+       | UCID			(UCID::nil)
+       | LCID idlist		(LCID::idlist)
+       | UCID idlist		(UCID::idlist)
+
+clauselist : clause		(clause::nil)
+	   | clause clauselist	(clause::clauselist)
+
+clause : term DOT		(mk_unop ("bang",term))
+       | LINEAR term DOT	(term)
+
+query : term			(close_term(term))
+
+readterm : term                 (close_term(term))
+
+term : term COMMA term		(mk_binop (",",term1,term2))
+     | term AMPERSAND term	(mk_binop ("&",term1,term2))
+     | term SEMICOLON term	(mk_binop (";",term1,term2))
+     | term DOUBLEARROW term	(mk_binop ("=>",term1,term2))
+     | term BACKDOUBLE term	(mk_binop ("=>",term2,term1))
+     | term LOLLIPOP term  	(mk_binop ("-o",term1,term2))
+     | term BACKLOLLI term	(mk_binop ("-o",term2,term1))
+     | term LOADLOLLI term	(mk_binop ("--o",term1,term2))
+     | term DCGARROW term	(mk_binop ("-->",term2,term1))
+     | term ARROW term BAR term	(mk_ternop("guard",term1,term2,term3))
+     | LCURLY term RCURLY  	(mk_unop ("bang",term))
+     | LBRACKET term RBRACKET  	(mk_unop ("dcgcodebracket",term))
+     | FORALL lamterm		(mk_quant ("forall",lamterm))
+     | EXISTS lamterm		(mk_quant ("exists",lamterm))
+     | term INFIXOP term 	(mk_binop (INFIXOP,term1,term2))
+     | term LEFTINFIXOP term 	(mk_binop (LEFTINFIXOP,term1,term2))
+     | term RIGHTINFIXOP term	(mk_binop (RIGHTINFIXOP,term1,term2))
+     | appl			(appl)
+
+
+
+appl : atom 			(atom)
+     | appl atom		(mk_appl(appl,atom))
+
+atom : TRUE			(mk_zerop "erase")
+     | ONE			(mk_zerop "true")
+     | EXCL			(mk_zerop "cut")
+     | id			(id)
+     | INT			(mk_int INT)
+     | STRING			(mk_string STRING)
+     | LPAREN term RPAREN 	(term)
+
+id : LCID			(mk_lcid LCID)
+   | UCID			(mk_ucid UCID)
+
+
+lamterm : bdvar BACKSLASH term	(mk_abst (bdvar,term))
+
+bdvar : LCID			(mk_varbind LCID)
+      | UCID			(mk_varbind UCID)
+
+

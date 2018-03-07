@@ -1,0 +1,14 @@
+This directory contains files related to a still-in-the-works DCG-style
+syntax for linear gap-dependency parsers.
+
+The files small.ldcg and big.ldcg contain DCG-style versions of the
+small_parser.ll and big_parser.ll files in ../Native_syntax.
+
+ldcg.ll is a preliminary lolli program that read linear-dcg grammars
+and outputs equivalent lolli programs.  Note this program is not
+complete, and has bugs. It is however worth looking at for 
+examples of file i/o and clause manipulation.
+
+big.ll and small.ll are the output of ldcg.ll when run on big.ldcg and
+small.ldcg respectively.
+

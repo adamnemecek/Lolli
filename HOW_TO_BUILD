@@ -1,0 +1,39 @@
+
+Building An Executable System
+-----------------------------
+
+As mentioned in the README file the Lolli system is written in Standard ML 
+of New Jersey*, and the parser and lexer were built using the parser-generator 
+(MLYACC) and lexical-analyzer-generator (MLLEX) distributed with that system.
+Though source files for the parser and lexer have been included, the
+parser and lexer have already been built, so you do not need access to
+the MLYACC or MLLEX.
+
+The source files for the system are located in ./src. 
+
+If compilation fails for any reason, please send me mail with a copy
+of all of the output you get during the compile.
+
+The firs step of the process is to edit ./src/Makefile to set the SML 
+variable to whatever name you use to call Standard ML of New Jersey. Ideally,
+you should use the sml-noshare version of the SML compiler (the one that
+is used to build SML-NJ itself) as this will generate a significantly
+smaller executable file (650KB versus 2.7MB). If you are not sure
+whether that version exists at your site, ask your system administrator.
+
+Once you have edited the Makefile, from within the ./sml_source directory, type
+
+make
+
+at the unix prompt. The compilations process generates lots (a few hundred
+lines) of messages. About a third of these will be warning messages 
+about redundant or non-exhaustive matches -- ignore them.
+
+You should be left with an executeable named "lolli" in ./src.
+
+
+
+
+
+
+

@@ -1,0 +1,24 @@
+MODULE small.
+parse Str_1011 Tree_1009 :- (explode_words Str_1011 Lst_1010 , sent Tree_1009 Lst_1010 nil).
+sent (sent N_1033 V_1032) S0_1043 S_1044 :- ({np N_1033 S0_1043 S1_1119} , vp V_1032 S1_1119 S_1044).
+vp (vp T_1538 N_1537) S0_1548 S_1549 :- (tv T_1538 S0_1548 S1_1624 , np N_1537 S1_1624 S_1549).
+vp (vp Stv_2015 Sbar_2014) S0_2025 S_2026 :- (stv Stv_2015 S0_2025 S1_2101 , sbar Sbar_2014 S1_2101 S_2026).
+sbar (sbar that S_2491) (that :: K_2706) S_2502 :- sent S_2491 K_2706 S_2502.
+np (np D_3001 N_3000) S0_3011 S_3012 :- (det D_3001 S0_3011 S1_3087 , n N_3000 S1_3087 S_3012).
+np (np D_3479 N_3478 R_3477) S0_3489 S_3490 :- (det D_3479 S0_3489 S1_3565 , n N_3478 S1_3565 S1_3759 , rel R_3477 S1_3759 S_3490).
+np (np P_4215) S0_4225 S_4226 :- pn P_4215 S0_4225 S_4226.
+rel (rel whom S_4431) (whom :: K_4646) S_4442 :- ((forall S0_4775 \ np (np gap) S0_4775 S0_4775) -o sent S_4431 K_4646 S_4442).
+det (det the) (the :: K_5341) K_5341.
+n (n H_5632) (H_5632 :: S_5427) S_5427 :- n H_5632.
+n man.
+n woman.
+n girl.
+n boy.
+pn (pn H_6095) (H_6095 :: S_5890) S_5890 :- pn H_6095.
+pn mary.
+pn bob.
+pn jill.
+tv (tv H_6538) (H_6538 :: S_6333) S_6333 :- tv H_6538.
+tv loves.
+tv married.
+stv (stv believes) (believes :: K_6921) K_6921.

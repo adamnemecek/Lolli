@@ -1,0 +1,67 @@
+This directory contains three natural language parser examples.
+
+small_parser.ll	- This is essentially the small parsing example from
+		  the LICS '90 and IC '92 papers. It has been modified to
+		  use the built in string types, and the explode_words/2
+		  predicate to make it more pleasant to use.
+
+
+big_parser.ll	- This is a substantially richer parser supporting a 
+		  much richer set of constructions, including several
+		  types of question formations.  It is substantially
+		  the parser presented at the end of the JICSLP '92
+		  paper.
+
+big_once.ll	- This is another modified version of big_parser.ll.
+	 	  It fixes a flaw in big_parser.ll, but unfortunately 
+		  makes use of an extra-logical (once) to do it.
+		  The problem with big_parser.ll is that in sentences
+		  involving multiple extractions, the parser allows the
+		  filler-gap dependencies to cross. This problem is 
+		  demonstrated below.
+
+		  To fix it we modify the gap introductions to be of the form
+
+			rel (that::P1) P2 (rel (that Gap) S) :- 
+     			   (forall P\ npgap P P (npgap Gap)) -o sent P1 P2 S.
+
+		  and, for each class of things that can be replaced by
+		  gaps, we add a rule of the form:
+
+			np P1 P2 NPGAP :- once (npgap P1 P2 NPGAP).
+
+		  This way when a gap is used, only the most recently 
+		  introduced gap of the appropriate type can be used. The
+		  parse cannot re-succeed using an earlier gap.
+
+
+-------------------
+
+%lolli
+Starting Lolli version 0.6, July 30, 1992
+  (built with Standard ML of New Jersey, Version 75, November 11, 1991)...
+?- big_parser --o top.
+?- parse "which book did you wondered who john told that you wrote" T.
+
+
+The following parse is correct. Notice the nested pattern of Gap introduction 
+and discharge:
+
+
+T_1 <- quest (npwh which (optap epsilon) (n book) Gap_5492) (quest (vfa did) (n
+p (pnposs (pn you))) (vp (qv wondered) (qbar (npwh (nwh who) Gap_30922) (sent (
+np (pnposs (pn john))) (vp (tv told) (np Gap_30922) (sbar that (sent (np (pnpos
+s (pn you))) (vp (tv wrote) (np Gap_5492))))))))).;
+
+
+The following parse is incorrect, the introduction/discharge pairs overlap
+rather than nesting:
+
+
+T_1 <- quest (npwh which (optap epsilon) (n book) Gap_5492) (quest (vfa did) (n
+p (pnposs (pn you))) (vp (qv wondered) (qbar (npwh (nwh who) Gap_30922) (sent (
+np (pnposs (pn john))) (vp (tv told) (np Gap_5492) (sbar that (sent (np (pnposs
+ (pn you))) (vp (tv wrote) (np Gap_30922))))))))).
+;
+no
+?-
