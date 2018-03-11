@@ -28,7 +28,7 @@ open Terms
 exception Illegal of string
 exception Internal of string
 
-fun rigid_head (Const _) = true
+fun rigid_head (Const a) = true
   | rigid_head (Uvar _) = true
   | rigid_head (Appl(M,_)) = rigid_head M
   | rigid_head (Evar(_,_,_)) = false
