@@ -1,4 +1,5 @@
 	
+
 (* Version of TERMS for hereditary Harrop formulas *)
 
 signature TERMS =
@@ -35,11 +36,11 @@ val unify : term -> term -> (substitution -> unit) -> substitution -> unit
 
 val project_substitution : term list -> substitution -> substitution
 val makestring_term : term -> string
-val print_term : outstream -> term -> unit
+val print_term : TextIO.outstream -> term -> unit
 val makestring_clause : term -> string
-val print_clause : outstream -> term -> unit
+val print_clause : TextIO.outstream -> term -> unit
 val makestring_raw : term -> string
-val print_raw : outstream -> term -> unit
+val print_raw : TextIO.outstream -> term -> unit
 val makestring_substitution : substitution -> string
 val print_substitution : substitution -> unit
 val makestring_varbind : varbind -> string
@@ -190,9 +191,9 @@ and makestring_raw M = mst_raw M
 and makestring_varbind (Varbind(x)) =
        mst_varbind (Varbind(x))
 
-fun print_term ostream M = output(ostream, makestring_term M)
-fun print_clause ostream M = output(ostream, makestring_clause M)
-fun print_raw  ostream M = output(ostream, makestring_raw M)
+fun print_term ostream M = TextIO.output(ostream, makestring_term M)
+fun print_clause ostream M = TextIO.output(ostream, makestring_clause M)
+fun print_raw  ostream M = TextIO.output(ostream, makestring_raw M)
 
 fun makestring_substitution nil = ""
   | makestring_substitution ((evar,t)::rest) =
