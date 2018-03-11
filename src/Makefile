@@ -5,7 +5,7 @@
 # New Jersey.  Ideally the -noshare version (used in the build process for
 # SML-NJ itself) should be used.
 
-SML = sml-noshare
+SML = sml
 
 Lolli: ; $(SML) < make.sml
 

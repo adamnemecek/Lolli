@@ -22,7 +22,7 @@ val line = ref 0
 fun init_line () = (line := 1)
 fun next_line () = (line := !line + 1)
 fun error (errmsg,line:pos,_) =
-  output(std_out,"Line " ^ (makestring line) ^ ": " ^ errmsg ^ "\n")
+  output(std_out,"Line " ^ Int.toString(line) ^ ": " ^ errmsg ^ "\n")
 
 type arg = unit
 

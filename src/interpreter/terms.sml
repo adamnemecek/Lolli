@@ -112,12 +112,12 @@ and mst_name "cut" = "!"
 
 and mst_const (Name name)  = mst_name name
   | mst_const (String s)   = "\"" ^ s ^ "\""
-  | mst_const (Int i)      = makestring i
+  | mst_const (Int i)      = Int.toString(i)
 
 and mst_raw (Bvar(vname)) = mst_name vname
 (*| mst_raw (Evar(vname,stamp,_)) = "?" ^ vname ^ makestring stamp *)
-  | mst_raw (Evar(vname,stamp,_)) =  vname ^ "_" ^ makestring stamp
-  | mst_raw (Uvar(vname,stamp)) = "!" ^ vname ^ makestring stamp
+  | mst_raw (Evar(vname,stamp,_)) =  vname ^ "_" ^ Int.toString(stamp)
+  | mst_raw (Uvar(vname,stamp)) = "!" ^ vname ^ Int.toString(stamp)
   | mst_raw (Const c) = mst_const c
   | mst_raw (Abst(x,M)) = "(" ^ mst_varbind x ^ " \\ " ^ mst_raw M ^ ")" 
   | mst_raw (M as Appl(M1,M2)) = "(" ^ mst_raw M1 ^ " " 
@@ -127,9 +127,9 @@ and mst_raw (Bvar(vname)) = mst_name vname
 and mst_term _ p (Bvar(vname)) = mst_name vname
 (*| mst_term _ p (Evar(vname,stamp,_)) = "?" ^ vname ^ makestring stamp *)
   | mst_term _ p (Evar(vname,stamp,_)) = (mst_name vname) ^ "_" 
-					 		  ^ makestring stamp
+					 		  ^ Int.toString(stamp)
   | mst_term _ p (Uvar(vname,stamp)) = "!" ^ (mst_name vname) 
-					   ^ makestring stamp
+					   ^ Int.toString(stamp)
   | mst_term _ p (Const c) = mst_const c
   | mst_term q p (Appl(Const(Name "forall"), Abst(x,M))) =
         parens 30 p ("forall " ^ mst_varbind x ^ " \\ " ^ mst_term q 40 M)
@@ -336,7 +336,7 @@ local fun delete h nil = nil
     fun delete_dups nil = nil
       | delete_dups (h::t) = (h::(delete_dups (delete h t)))
     fun convert_evars (Evar(vname,stamp,_)) =  
-		let val newname = vname ^ "_" ^ makestring stamp 
+		let val newname = vname ^ "_" ^ Int.toString(stamp)
 		in (Bvar(newname),[newname]) end
       | convert_evars (Abst(v,t1)) = 
 		let val (new_t1,vars1) = convert_evars t1 
