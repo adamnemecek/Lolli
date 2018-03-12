@@ -13,6 +13,8 @@ type svalue = Tokens.svalue
 type ('a,'b) token = ('a,'b) Tokens.token
 type lexresult= (svalue,pos) token
 
+val line = ErrorMsg.lineNum
+
 val eof = fn () => Tokens.EOF(!line,!line)
 
 fun makeInt (s : string) = 
